@@ -1,0 +1,59 @@
+name: messenger
+label: Messenger
+kind: platform
+version: 1.0.0
+description: >
+  Facebook Messenger gateway adapter for Hermes Agent. Runs an aiohttp
+  webhook server that answers Meta's GET verification handshake, accepts
+  signed (X-Hub-Signature-256 / HMAC-SHA256 app secret) webhook events,
+  and relays 1:1 Page DMs between Messenger users and the Hermes agent.
+  Outbound replies use the Graph API Send API (messaging_type=RESPONSE)
+  within the 24-hour standard messaging window. Inbound attachments are
+  downloaded and cached for the agent's vision/file tools.
+author: Shaney17
+# ``requires_env`` / ``optional_env`` entries surface in the ``hermes config``
+# UI via the platform-plugin env var injector in ``hermes_cli/config.py``.
+requires_env:
+  - name: MESSENGER_PAGE_ACCESS_TOKEN
+    description: "Facebook Page access token (Meta App > Messenger > Settings > Access Tokens). Authenticates Send API calls."
+    prompt: "Page access token"
+    url: "https://developers.facebook.com/apps/"
+    password: true
+  - name: MESSENGER_APP_SECRET
+    description: "Meta App secret (App > Settings > Basic). Used for X-Hub-Signature-256 webhook verification."
+    prompt: "App secret"
+    url: "https://developers.facebook.com/apps/"
+    password: true
+  - name: MESSENGER_VERIFY_TOKEN
+    description: "Operator-chosen random string. Paste the same value into the Meta webhook config; guards the GET verification handshake."
+    prompt: "Webhook verify token (any random string)"
+    password: true
+optional_env:
+  - name: MESSENGER_PORT
+    description: "Webhook listen port (default: 8650)"
+    prompt: "Webhook port"
+    password: false
+  - name: MESSENGER_HOST
+    description: "Webhook bind host (default: 0.0.0.0)"
+    prompt: "Webhook host"
+    password: false
+  - name: MESSENGER_PUBLIC_URL
+    description: "Public HTTPS base URL of the webhook (e.g. https://my-tunnel.example.com). Informational; used in setup output."
+    prompt: "Public HTTPS base URL"
+    password: false
+  - name: MESSENGER_API_VERSION
+    description: "Graph API version (default: v21.0). Override if Meta deprecates the default."
+    prompt: "Graph API version"
+    password: false
+  - name: MESSENGER_ALLOWED_USERS
+    description: "Comma-separated PSIDs (page-scoped user IDs) allowed to DM the bot. PSIDs appear in logs on first contact."
+    prompt: "Allowed PSIDs (comma-separated)"
+    password: false
+  - name: MESSENGER_ALLOW_ALL_USERS
+    description: "Allow any Messenger user to talk to the bot (dev only — disables the allowlist)."
+    prompt: "Allow all users? (true/false)"
+    password: false
+  - name: MESSENGER_HOME_CHANNEL
+    description: "Default PSID for cron / notification delivery."
+    prompt: "Home channel PSID (or empty)"
+    password: false
