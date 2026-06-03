@@ -423,20 +423,6 @@ def _cache_inbound(attachment_type: str, data: bytes, fallback_name: str) -> Tup
     return cache_document_from_bytes(data, fallback_name), "file"
 
 
-def _messenger_session_thread_id(messaging: Dict[str, Any]) -> Optional[str]:
-    """Return a stable Page-scoped thread id for Hermes session isolation.
-
-    Messenger sends a page-scoped sender id (PSID) plus the Page recipient id.
-    Keep ``chat_id`` as the raw PSID for outbound Send API delivery, and put
-    the Page id in ``thread_id`` so Hermes' session key is unique per
-    Messenger user and Page without breaking replies.
-    """
-    recipient = (messaging.get("recipient") or {}).get("id")
-    if recipient:
-        return str(recipient)
-    return None
-
-
 # ---------------------------------------------------------------------------
 # Adapter
 # ---------------------------------------------------------------------------
@@ -742,7 +728,6 @@ class MessengerAdapter(BasePlatformAdapter):
             user_id=sender,
             user_name=user_name,
             chat_name=user_name,
-            thread_id=_messenger_session_thread_id(messaging),
         )
 
         has_media = bool(media_urls)
@@ -775,7 +760,6 @@ class MessengerAdapter(BasePlatformAdapter):
         source_obj = self.build_source(
             chat_id=sender, chat_type="dm", user_id=sender,
             user_name=user_name, chat_name=user_name,
-            thread_id=_messenger_session_thread_id(messaging),
         )
         event_obj = MessageEvent(
             text=text,

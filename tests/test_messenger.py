@@ -100,17 +100,6 @@ def test_dedup_drops_repeat():
 
 
 # ---------------------------------------------------------------------------
-# Messenger session identity
-# ---------------------------------------------------------------------------
-
-def test_session_thread_id_uses_page_recipient():
-    assert mod._messenger_session_thread_id(
-        {"sender": {"id": "USER"}, "recipient": {"id": "PAGE"}}
-    ) == "PAGE"
-    assert mod._messenger_session_thread_id({"sender": {"id": "USER"}}) is None
-
-
-# ---------------------------------------------------------------------------
 # Platform enum resolution (the §7 Q1 blocker)
 # ---------------------------------------------------------------------------
 
@@ -210,7 +199,6 @@ def test_allowlist_via_dispatch(monkeypatch):
     assert ev.text == "hi"
     assert ev.source.chat_id == "GOOD"
     assert ev.source.chat_type == "dm"
-    assert ev.source.thread_id == "PAGE"
 
 
 def test_message_source_uses_facebook_profile_name(monkeypatch):
