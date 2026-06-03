@@ -189,12 +189,49 @@ def test_allowlist_via_dispatch(monkeypatch):
     assert handled == []
 
     # Authorized sender passes through to handle_message.
-    asyncio.run(a._dispatch_event({"sender": {"id": "GOOD"}, "message": {"mid": "m2", "text": "hi"}}))
+    asyncio.run(a._dispatch_event({
+        "sender": {"id": "GOOD"},
+        "recipient": {"id": "PAGE"},
+        "message": {"mid": "m2", "text": "hi"},
+    }))
     assert len(handled) == 1
     ev = handled[0]
     assert ev.text == "hi"
     assert ev.source.chat_id == "GOOD"
     assert ev.source.chat_type == "dm"
+
+
+def test_message_source_uses_facebook_profile_name(monkeypatch):
+    import asyncio
+
+    a = _make_adapter(monkeypatch, MESSENGER_ALLOW_ALL_USERS="true")
+    handled = []
+
+    class _FakeClient:
+        async def send_action(self, *args, **kwargs):
+            return None
+
+        async def get_user_profile(self, psid):
+            assert psid == "GOOD"
+            return {"name": "Facebook User"}
+
+    async def _fake_handle(event):
+        handled.append(event)
+
+    monkeypatch.setattr(a, "handle_message", _fake_handle)
+    a._client = _FakeClient()
+
+    asyncio.run(a._dispatch_event({
+        "sender": {"id": "GOOD"},
+        "recipient": {"id": "PAGE"},
+        "message": {"mid": "m-profile", "text": "hi"},
+    }))
+
+    assert len(handled) == 1
+    ev = handled[0]
+    assert ev.source.user_id == "GOOD"
+    assert ev.source.user_name == "Facebook User"
+    assert ev.source.chat_name == "Facebook User"
 
 
 def test_echo_and_dedup_filtered(monkeypatch):

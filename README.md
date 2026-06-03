@@ -173,6 +173,9 @@ hermes gateway status               # vẫn thấy Messenger
 - **1:1 only**: Messenger Platform không có group.
 - **Graph API version**: kiểm tra version còn hỗ trợ trước khi deploy; override
   bằng `MESSENGER_API_VERSION`.
+- **Tách lịch sử theo user**: PSID đã là Page-scoped theo thiết kế của Meta —
+  cùng 1 người nhắn 2 Page khác nhau cho ra 2 PSID khác nhau. Hermes tạo session
+  key dạng `messenger:dm:<PSID>`, mỗi user có lịch sử riêng biệt.
 
 ---
 

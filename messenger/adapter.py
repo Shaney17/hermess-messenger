@@ -749,9 +749,17 @@ class MessengerAdapter(BasePlatformAdapter):
         if not text:
             return
 
+        user_name = sender
+        if self._client and sender:
+            try:
+                profile = await self._client.get_user_profile(sender)
+                user_name = profile.get("name") or sender
+            except Exception:
+                user_name = sender
+
         source_obj = self.build_source(
             chat_id=sender, chat_type="dm", user_id=sender,
-            user_name=sender, chat_name=sender,
+            user_name=user_name, chat_name=user_name,
         )
         event_obj = MessageEvent(
             text=text,
